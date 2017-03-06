@@ -1,9 +1,32 @@
 const DEBUG = true;
-const observer = registerObserver();
 
-function registerObserver() {
+registerScrapbookAndMantelObserver();
+registerItemObserver();
+
+function registerScrapbookAndMantelObserver() {
+  // The UI uses the same ID for both scrapbook and mantelpiece modals,
+  // so this observer and callback will handle things fine.
+  const rootNode = document.getElementById('quality-chooser');
+  const queries = [{ element: '*' }];
+  return new MutationSummary({
+    rootNode,
+    callback,
+    queries,
+  });
+
+  function callback(summaries) {
+    if ($('.qualities li').length) {
+      $('#js-flis__qualities').length || insertSearchField({
+        siblingSelector: '#quality-chooser h3',
+        id: 'js-flis__qualities',
+        listSelector: '.qualities',
+      });
+    }
+  }
+}
+
+function registerItemObserver() {
   // We don't need to go any higher in the DOM than #mainContentViaAjax.
-  // This will 
   const rootNode = document.getElementById('mainContentViaAjax');
   const queries = [{ element: '*' }];
 
@@ -103,7 +126,7 @@ function filterItems({
 
       // We're trying to extract the item's name,
       // ignoring quantity
-      const pat = /(?:[\d]+ x )(.+)/;
+      const pat = /(?:[\d]+ x )?(.+)/;
       if (el) {
         // Convert to lower-case (so that we can do a
         // case-insensitive comparison with the search string)
