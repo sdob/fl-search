@@ -1,0 +1,36 @@
+.you_bottom_rhs h3 {
+  clear: both;
+}
+
+.you_bottom_rhs ul.you_icon.cf:after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.flis-hidden {
+  display: none !important;
+}
+
+.me-profile-slot.flis-hidden {
+  display: initial !important;
+}
+
+.flis-search__container {
+  margin-top: 12px;
+}
+
+.flis-search__input {
+  width: 100%;
+  font-size: 16px;
+  line-height: 1.2;
+  padding: 4px;
+}
+
+.me-page-inventory .flis-search__input {
+  width:372px;
+}
+
+.you_bottom_rhs .flis-search__input {
+  width: 282px;
+}
