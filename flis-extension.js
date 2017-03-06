@@ -103,14 +103,14 @@ function filterItems({
 
       // We're trying to extract the item's name,
       // ignoring quantity
-      const pat = /[\d]+ x ([ a-zA-z]+)/;
+      const pat = /(?:[\d]+ x )(.+)/;
       if (el) {
         // Convert to lower-case (so that we can do a
         // case-insensitive comparison with the search string)
         const match = pat.exec(el.innerText.toLowerCase());
         // If we have a regex match and it contains the
         // search string, then ensure it's displayed
-        if (match && match[1] && match[1].includes(searchString)) {
+        if (match && match[1] && match[1].includes(searchString.toLowerCase())) {
           $(this).removeClass('flis-hidden');
         } else {
           // Otherwise, hide the element
