@@ -1,3 +1,7 @@
+/*
+ * Fix the un-equippable inventory CSS so that hiding
+ * parts of it doesn't break the layout.
+ */
 .you_bottom_rhs h3 {
   clear: both;
 }
@@ -8,11 +12,16 @@
   clear: both;
 }
 
+/* Hide items that are filtered out. */
 .flis-hidden {
   display: none !important;
 }
 
 .me-profile-slot.flis-hidden {
+  /*
+   * Don't hide the empty 'equipped' slot in the
+   * equippable category (hiding it screws up the layout).
+   */
   display: initial !important;
 }
 
@@ -21,17 +30,35 @@
   margin-bottom: 8px;
 }
 
+/* Match the outfit dropdown styles */
 .flis-search__input {
-  width: 100%;
-  font-size: 16px;
-  line-height: 1.2;
-  padding: 4px;
+  border: 1px solid #a89e8c;
+  color: #1d1d1d;
+  font-size: 13px;
+  line-height: 1.38462;
+  padding: 6px 8px;
+}
+
+.ui-widget-content .flis-search__input {
+  /* Override the 1em font-size declared for .ui-widget input */
+  font-size: 13px;
+  /*
+   * The dialogs put 14 40px-wide images in each row,
+   * with a 5px right-margin. This calc matches the search
+   * bar to the width of the images.
+   */
+  width: calc(45 * 13px + 40px - 16px - 2px);
 }
 
 .me-page-inventory .flis-search__input {
-  width:372px;
+  /*
+   * Match the width of the outfit dropdown:
+   * 75% - padding - border
+   */
+  width: calc(75% - 16px - 2px);
 }
 
 .you_bottom_rhs .flis-search__input {
+  /* Eyeballed */
   width: 282px;
 }
