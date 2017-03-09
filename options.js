@@ -22,8 +22,12 @@
 
       // Set checkboxes in UI
       searchfields.forEach((searchfield) => {
-        // Set checkbox value
-        document.querySelector(`[data-searchfield="${searchfield}"]`).checked = options[searchfield];
+        // Find the checkbox that controls this field's visibility
+        const el = document.querySelector(`[data-searchfield="${searchfield}"]`)
+        // Set checkbox value (if we found it)
+        if (el) {
+          el.checked = options[searchfield];
+        }
       });
 
       // Save to storage
