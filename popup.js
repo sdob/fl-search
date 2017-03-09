@@ -8,11 +8,13 @@
   // Set event listeners on each option checkbox
   document.querySelectorAll('.flis-options__input').forEach(setCheckboxChangeListener);
 
+  const storage = chrome.storage.sync || chrome.storage.local;
+
   /*
    * Load options from storage, or set defaults (all true)
    */
   function loadOptions() {
-    chrome.storage.sync.get(null, (options) => {
+    storage.get(null, (options) => {
       // Set defaults if we're loading for the first time
       if (!Object.keys(options).length) {
         searchfields.forEach((k) => {
@@ -31,7 +33,7 @@
       });
 
       // Save to storage
-      chrome.storage.sync.set(options);
+      storage.set(options);
     });
   }
 
@@ -47,7 +49,7 @@
       // If it's there (it should be), then save it
       // (this will dispatch an event that the content script will hear)
       if (searchfield) {
-        chrome.storage.sync.set({ [searchfield]: evt.target.checked });
+        storage.set({ [searchfield]: evt.target.checked });
       }
     };
   }

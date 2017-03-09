@@ -16,7 +16,6 @@
   retrieveVisibilities();
   listenForStorageChanges();
 
-
   function registerScrapbookAndMantelObserver() {
     // The UI uses the same ID for both scrapbook and mantelpiece modals,
     // so this observer and callback will handle things fine.
@@ -74,8 +73,10 @@
   }
 
   function retrieveVisibilities() {
+    // Use whichever storage we can access
+    const storage = chrome.storage.sync || chrome.storage.local;
     // Retrieve visibilities from storage
-    chrome.storage.sync.get(null, (options) => {
+    storage.get(null, (options) => {
       Object.keys(options).forEach((searchfield) => {
         const id = IDS[searchfield];
         if (id) {
@@ -208,7 +209,7 @@
    */
   function log(message) {
     if (DEBUG) {
-      console.debug(`FLIS: ${message}`);
+      console.log(`FLIS: ${message}`);
     }
   }
 })();
