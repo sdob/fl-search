@@ -1,0 +1,16 @@
+.flis-options {
+  min-width: 200px;
+}
+.flis-options__header {
+  border-bottom: solid 1px #1d1d1d;
+  color: #2d2d2d;
+  font-size: 125%;
+  padding-bottom: 0.1em;
+  text-align: center;
+}
+.flis-options__option {
+  align-items: center;
+  display: flex;
+  font-size: 110%;
+  margin-bottom: 0.5em;
+}
