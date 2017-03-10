@@ -58,6 +58,11 @@
   width: calc(75% - 16px - 2px);
 }
 
+.you_bottom_lhs .flis-search__container {
+  /* Eyeballed */
+  margin-top: 5px;
+}
+
 .you_bottom_rhs .flis-search__input {
   /* Eyeballed */
   width: 282px;

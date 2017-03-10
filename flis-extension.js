@@ -5,6 +5,7 @@
     'outfit': 'js-flis__outfit',
     'inventory': 'js-flis__inventory',
     'scrapbook': 'js-flis__scrapbook',
+    'qualities': 'js-flis__qualities',
   };
 
   // These are our visibilities; by storing them here we can handle changes
@@ -13,6 +14,7 @@
 
   registerScrapbookAndMantelObserver();
   registerItemObserver();
+  registerQualitiesObserver();
   retrieveVisibilities();
   listenForStorageChanges();
 
@@ -67,6 +69,25 @@
           id: IDS.inventory,
           listSelector: '.you_bottom_rhs .you_icon',
           emptyIconClass: 'empty-icon',
+        });
+      }
+    }
+  }
+
+  function registerQualitiesObserver() {
+    const rootNode = document.getElementById('mainContentViaAjax');
+    const queries = [{ element: '.you_bottom_lhs' }];
+    return new MutationSummary({
+      rootNode,
+      callback,
+      queries,
+    });
+
+    function callback() {
+      if ($('.you_bottom_lhs').length) {
+        $(`#${IDS.qualities}`).length || insertSearchField({
+          siblingSelector: '.you_bottom_lhs h2 + div',
+          id: IDS.qualities,
         });
       }
     }
