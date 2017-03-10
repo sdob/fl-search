@@ -1,6 +1,6 @@
 (() => {
   // These are our search fields
-  const searchfields = ['outfit', 'inventory', 'scrapbook'];
+  const searchfields = ['outfit', 'inventory', 'scrapbook', 'qualities'];
 
   // Load saved options
   document.addEventListener('DOMContentLoaded', loadOptions);
