@@ -88,6 +88,7 @@
         $(`#${IDS.qualities}`).length || insertSearchField({
           siblingSelector: '.you_bottom_lhs h2 + div',
           id: IDS.qualities,
+          listSelector: '.you_bottom_lhs .qualitiesToggleDiv',
         });
 
         // Check whether we have populated fields, and load
