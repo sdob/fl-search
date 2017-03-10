@@ -89,6 +89,7 @@
           siblingSelector: '.you_bottom_lhs h2 + div',
           id: IDS.qualities,
           listSelector: '.you_bottom_lhs .qualitiesToggleDiv',
+          onFiltered,
         });
 
         // Check whether we have populated fields, and load
@@ -100,6 +101,30 @@
             contentsDiv.load(href);
           }
         });
+      }
+
+      function onFiltered({ searchString }) {
+        // If the search string is non-empty, then loop through the quality
+        // categories, opening the ones that should not be hidden
+        if (searchString !== '') {
+          return $('.you_bottom_lhs h3.qualityCategory').each(function() {
+            if (!$(this).hasClass('flis-hidden') && categoryIsHidden($(this))) {
+              $(this).click();
+            }
+          });
+        }
+
+        // Otherwise, the search string is empty, so we should just fold
+        // up the categories.
+        return $('.you_bottom_lhs h3.qualityCategory').each(function() {
+          if (!categoryIsHidden($(this))) {
+            $(this).click();
+          }
+        });
+      }
+
+      function categoryIsHidden(el) {
+        return $(el).next().css('display') === 'none';
       }
     }
   }
@@ -172,7 +197,9 @@
       // If we have a callback to run after items are filtered, then
       // run it now
       if (typeof onFiltered === 'function') {
-        onFiltered();
+        onFiltered({
+          searchString,
+        });
       }
     });
   }
