@@ -93,12 +93,25 @@
         });
 
         // Check whether we have populated fields, and load
-        // them if we don't
+        // them if we don't. Firefox doesn't seem to want to let us
+        // call contentsDiv.load() ourselves, so we'll dispatch a
+        // click event instead.
         $('.you_bottom_lhs h3.qualityCategory').each(function() {
           const contentsDiv = $(this).next();
           if (contentsDiv.is(':empty')) {
-            const href = $(this).find('a').attr('href');
-            contentsDiv.load(href);
+            // We click once to get FL to make the request for this category's
+            // qualities.
+            $(this).click();
+
+            // Then we fake a second click, avoiding the check to see whether
+            // the category is empty (which it is)
+
+            // Show the 'expand' button
+            $(this).children('.expand').toggle();
+            // Hide the 'contract' button
+            $(this).children('.contract').toggle();
+            // Hide the contents div
+            $(this).next().toggle();
           }
         });
       }
