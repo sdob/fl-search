@@ -148,6 +148,7 @@
     siblingSelector,
     listSelector,
     emptyIconClass,
+    onFiltered,
   }) {
     const inputHtml = `
       <div class="flis-search__container">
@@ -168,6 +169,11 @@
     $(`#${id}`).keyup((evt) => {
       const searchString = $(`#${id}`).val();
       filterItems({ listSelector, searchString, emptyIconClass });
+      // If we have a callback to run after items are filtered, then
+      // run it now
+      if (typeof onFiltered === 'function') {
+        onFiltered();
+      }
     });
   }
 
