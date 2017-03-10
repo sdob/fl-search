@@ -242,10 +242,10 @@
           }
         }
 
-        // The first <strong> element in the tooltip
+        // The first <strong> element we find
         // is the item's name and quantity info
         // (usable items have a second <strong>)
-        const el = $(this).find('.tt strong')[0];
+        const el = $(this).find('strong')[0];
 
         // We're trying to extract the item's name,
         // ignoring quantity
