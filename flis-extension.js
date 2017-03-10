@@ -89,6 +89,16 @@
           siblingSelector: '.you_bottom_lhs h2 + div',
           id: IDS.qualities,
         });
+
+        // Check whether we have populated fields, and load
+        // them if we don't
+        $('.you_bottom_lhs h3.qualityCategory').each(function() {
+          const contentsDiv = $(this).next();
+          if (contentsDiv.is(':empty')) {
+            const href = $(this).find('a').attr('href');
+            contentsDiv.load(href);
+          }
+        });
       }
     }
   }
