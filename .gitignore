@@ -1,4 +1,5 @@
 # VIM swap files
 .*.sw[op]
 # Build
+build/
 dist/
