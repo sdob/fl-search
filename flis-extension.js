@@ -9,13 +9,16 @@
   };
 
   // These are our visibilities; by storing them here we can handle changes
-  // to preferences even when the 'Myself' tab isn't there
+  // to preferences in the menu even when the user isn't on 'Myself' tab.
   const visibilities = {};
 
+  // Register observers
   registerScrapbookAndMantelObserver();
   registerItemObserver();
   registerQualitiesObserver();
+  // Grab visibilities from storage
   retrieveVisibilities();
+  // Listen for changes to the stored preferences
   listenForStorageChanges();
 
   function registerScrapbookAndMantelObserver() {
@@ -85,6 +88,7 @@
 
     function callback() {
       if ($('.you_bottom_lhs').length) {
+        // Insert the search field
         $(`#${IDS.qualities}`).length || insertSearchField({
           siblingSelector: '.you_bottom_lhs h2 + div',
           id: IDS.qualities,
@@ -98,13 +102,18 @@
         // click event instead.
         $('.you_bottom_lhs h3.qualityCategory').each(function() {
           const contentsDiv = $(this).next();
+
+          // Check whether the category div is empty (if it's not, then
+          // we don't need to load the categories).
           if (contentsDiv.is(':empty')) {
-            // We click once to get FL to make the request for this category's
+            // We click once to get FL to make the AJAX request for this category's
             // qualities.
             $(this).click();
 
-            // Then we fake a second click, avoiding the check to see whether
-            // the category is empty (which it is)
+            // Then we go through the motions of closing the category again.
+            // Dispatching a second click immediately would cause the UI
+            // to make the AJAX request a second time (because the element's
+            // still empty), so we'll do the toggling ourselves instead.
 
             // Show the 'expand' button
             $(this).children('.expand').toggle();
@@ -116,9 +125,13 @@
         });
       }
 
+      // Once we've done the visibility filtering, we want to open/close
+      // the categories so that any matching qualities are visible.
       function onFiltered({ searchString }) {
         // If the search string is non-empty, then loop through the quality
-        // categories, opening the ones that should not be hidden
+        // categories, opening the ones that should not be hidden (we don't
+        // need to close the hidden divs explicitly, since they're invisible
+        // and they'll be re-closed when the search field is emptied).
         if (searchString !== '') {
           return $('.you_bottom_lhs h3.qualityCategory').each(function() {
             if (!$(this).hasClass('flis-hidden') && categoryIsHidden($(this))) {
@@ -127,8 +140,8 @@
           });
         }
 
-        // Otherwise, the search string is empty, so we should just fold
-        // up the categories.
+        // Otherwise, the search string has become empty, so we should just fold
+        // closed all categories.
         return $('.you_bottom_lhs h3.qualityCategory').each(function() {
           if (!categoryIsHidden($(this))) {
             $(this).click();
@@ -142,6 +155,8 @@
     }
   }
 
+  // Retrieve the user's preferences (i.e., which fields to display)
+  // from storage.
   function retrieveVisibilities() {
     // Use whichever storage we can access
     const storage = chrome.storage.sync || chrome.storage.local;
@@ -157,8 +172,10 @@
     });
   }
 
+  // Listen for changes to the options in storage. We don't need to
+  // have any actual communication between the popup and the content
+  // script.
   function listenForStorageChanges() {
-    // Listen for changes to the options in storage
     chrome.storage.onChanged.addListener((changes) => {
       Object.keys(changes).forEach((searchfield) => {
         // Get the searchfield's ID
@@ -173,7 +190,7 @@
 
         // If we're hiding the searchfield, then we need to clear it first
         // so that the user isn't stuck with, e.g., an empty list that they
-        // can't change. We need to trigger the keyup event manually.
+        // can't change. We then need to trigger the keyup event manually.
         if (!changes[searchfield].newValue) {
           $(`#${id}`).val('').trigger('keyup');
         }
