@@ -15,15 +15,11 @@
    */
   function loadOptions() {
     storage.get(null, (options) => {
-      // Set defaults if we're loading for the first time
-      if (!Object.keys(options).length) {
-        searchfields.forEach((k) => {
-          options[k] = true;
-        });
-      }
-
-      // Set checkboxes in UI
       searchfields.forEach((searchfield) => {
+        // Default to true if we don't already have the key
+        if (!Object.keys(options).includes(searchfield)) {
+          options[searchfield] = true;
+        }
         // Find the checkbox that controls this field's visibility
         const el = document.querySelector(`[data-searchfield="${searchfield}"]`)
         // Set checkbox value (if we found it)
