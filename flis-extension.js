@@ -8,6 +8,11 @@
     'qualities': 'js-flis__qualities',
   };
 
+  const preferences = {
+    // Search descriptions, or just names?
+    'search-descriptions': false,
+  };
+
   // These are our visibilities; by storing them here we can handle changes
   // to preferences in the menu even when the user isn't on 'Myself' tab.
   const visibilities = {};
@@ -16,8 +21,10 @@
   registerScrapbookAndMantelObserver();
   registerItemObserver();
   registerQualitiesObserver();
-  // Grab visibilities from storage
-  retrieveVisibilities();
+
+  // Grab visibilities and options from storage
+  retrieveOptions();
+
   // Listen for changes to the stored preferences
   listenForStorageChanges();
 
@@ -155,18 +162,19 @@
     }
   }
 
-  // Retrieve the user's preferences (i.e., which fields to display)
-  // from storage.
-  function retrieveVisibilities() {
+  // Retrieve the user's preferences from storage.
+  function retrieveOptions() {
     // Use whichever storage we can access
     const storage = chrome.storage.sync || chrome.storage.local;
-    // Retrieve visibilities from storage
+    // Retrieve visibilities and options from storage
     storage.get(null, (options) => {
-      Object.keys(options).forEach((searchfield) => {
-        const id = IDS[searchfield];
+      Object.keys(options).forEach((key) => {
+        const id = IDS[key];
         if (id) {
-          const display = options[searchfield] ? 'block' : 'none';
+          const display = options[key] ? 'block' : 'none';
           visibilities[id] = display;
+        } else {
+          preferences[key] = options[key];
         }
       });
     });
@@ -177,22 +185,35 @@
   // script.
   function listenForStorageChanges() {
     chrome.storage.onChanged.addListener((changes) => {
-      Object.keys(changes).forEach((searchfield) => {
+      Object.keys(changes).forEach((change) => {
         // Get the searchfield's ID
-        const id = IDS[searchfield];
+        const id = IDS[change];
 
-        // Set the display value
-        const display = changes[searchfield].newValue ? 'block' : 'none';
-        $(`#${id}`).css({ display });
+        if (id) {
+          // Set the display value
+          const display = changes[change].newValue ? 'block' : 'none';
+          $(`#${id}`).css({ display });
 
-        // Update our store
-        visibilities[id] = display;
+          // Update our store
+          visibilities[id] = display;
 
-        // If we're hiding the searchfield, then we need to clear it first
-        // so that the user isn't stuck with, e.g., an empty list that they
-        // can't change. We then need to trigger the keyup event manually.
-        if (!changes[searchfield].newValue) {
-          $(`#${id}`).val('').trigger('keyup');
+          // If we're hiding the searchfield, then we need to clear it first
+          // so that the user isn't stuck with, e.g., an empty list that they
+          // can't change. We then need to trigger the keyup event manually.
+          if (!changes[change].newValue) {
+            $(`#${id}`).val('').trigger('keyup');
+          }
+        } else {
+          if (['search-descriptions'].includes(change)) {
+            // Cache preferences
+            preferences[change] = changes[change].newValue;
+            // Trigger a keyup on all searchfields to re-filter items
+            Object.keys(IDS).forEach((k) => {
+              const id = IDS[k];
+              const $el = $(`#${id}`);
+              $el.trigger('keyup');
+            });
+          }
         }
       });
     });
@@ -257,17 +278,26 @@
           } else {
             $(this).removeClass('flis-hidden');
           }
+          return;
         }
 
-        // The first <strong> element we find
-        // is the item's name and quantity info
-        // (usable items have a second <strong>)
-        const el = $(this).find('strong')[0];
+        // Now search non-empty elements
+        if (preferences['search-descriptions']) {
+          // This is pretty straightforward stuff
+          if ($(this).text().toLowerCase().includes(searchString.toLowerCase())) {
+            $(this).removeClass('flis-hidden');
+          } else {
+            $(this).addClass('flis-hidden');
+          }
+        } else {
+          // The first <strong> element we find
+          // is the item's name and quantity info
+          // (usable items have a second <strong>)
+          const el = $(this).find('strong')[0];
 
-        // We're trying to extract the item's name,
-        // ignoring quantity
-        const pat = /(?:[\d]+ x )?(.+)/;
-        if (el) {
+          // We're trying to extract the item's name,
+          // ignoring quantity
+          const pat = /(?:[\d]+ x )?(.+)/;
           // Convert to lower-case (so that we can do a
           // case-insensitive comparison with the search string)
           const match = pat.exec(el.innerText.toLowerCase());
