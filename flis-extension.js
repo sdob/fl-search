@@ -295,6 +295,12 @@
           // (usable items have a second <strong>)
           const el = $(this).find('strong')[0];
 
+          // We may not be able to find it (e.g., Lilac's Inclination
+          // is bugged)
+          if (!el) {
+            return;
+          }
+
           // We're trying to extract the item's name,
           // ignoring quantity
           const pat = /(?:[\d]+ x )?(.+)/;
