@@ -41,11 +41,11 @@
 
     function callback(summaries) {
       const id = IDS.scrapbook;
-      if ($('.qualities li').length) {
+      if ($('div.ui-dialog .qualities li').length) {
         $(`#${id}`).length || insertSearchField({
           id,
           siblingSelector: '#quality-chooser h3',
-          listSelector: '.qualities',
+          listSelector: 'div.ui-dialog .qualities',
         });
       }
     }
@@ -266,6 +266,7 @@
     searchString,
     emptyIconClass,
   }) {
+    log(`filtering with selector '${listSelector}', searchString ${searchString}`);
     // Iterate over each category (<ul> matching the selector)
     $(listSelector).each(function() {
       // Handle each item within the category
