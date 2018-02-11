@@ -19,7 +19,8 @@ const copy = new CopyWebpackPlugin([
     from: 'manifest.json',
     to: 'manifest.json',
     transform: (content) => {
-      return content.toString().replace('VERSION', `"${version}"`);
+      return content.toString()
+        .replace('VERSION', `"${version}"`);
     },
   },
 ]);

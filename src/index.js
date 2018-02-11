@@ -1,21 +1,21 @@
 import MutationSummary from 'mutation-summary';
 import $ from 'jquery';
+import { createStore } from 'redux';
 
+import reducer from './reducer';
 import style from './style.scss';
-
-const DEBUG = true;
-
-const IDS = {
-  'outfit': 'js-flis__outfit',
-  'inventory': 'js-flis__inventory',
-  'scrapbook': 'js-flis__scrapbook',
-  'qualities': 'js-flis__qualities',
-};
+import registerScrapbookAndMantelObserver from './registerScrapbookAndMantelObserver';
+import { IDS } from './ids';
+import filterItems from './filterItems';
+import { listenForStorageChanges, retrieveOptions } from './actions';
+import insertSearchField from './insertSearchField';
 
 const preferences = {
   // Search descriptions, or just names?
   'search-descriptions': false,
 };
+
+const store = createStore(reducer);
 
 // These are our visibilities; by storing them here we can handle changes
 // to preferences in the menu even when the user isn't on 'Myself' tab.
@@ -27,33 +27,11 @@ registerItemObserver();
 registerQualitiesObserver();
 
 // Grab visibilities and options from storage
-retrieveOptions();
+retrieveOptions({ store });
 
 // Listen for changes to the stored preferences
-listenForStorageChanges();
+listenForStorageChanges({ store });
 
-function registerScrapbookAndMantelObserver() {
-  // The UI uses the same ID for both scrapbook and mantelpiece modals,
-  // so this observer and callback will handle things fine.
-  const rootNode = document.getElementById('quality-chooser');
-  const queries = [{ element: '*' }];
-  return new MutationSummary({
-    rootNode,
-    callback,
-    queries,
-  });
-
-  function callback(summaries) {
-    const id = IDS.scrapbook;
-    if ($('div.ui-dialog .qualities li').length) {
-      $(`#${id}`).length || insertSearchField({
-        id,
-        siblingSelector: '#quality-chooser h3',
-        listSelector: 'div.ui-dialog .qualities',
-      });
-    }
-  }
-}
 
 function registerItemObserver() {
   // We don't need to go any higher in the DOM than #mainContentViaAjax.
@@ -71,6 +49,8 @@ function registerItemObserver() {
     if ($('.inventory-header-and-button').length && $('.you_bottom_rhs .explanation').length) {
       // Add a search field for equippable items
       $(`#${IDS.outfit}`).length || insertSearchField({
+        store,
+        visibilities,
         siblingSelector: '.inventory-header-and-button',
         id: IDS.outfit,
         listSelector: '.me-profile-slot-items, .me-profile-slot',
@@ -79,6 +59,8 @@ function registerItemObserver() {
 
       // Add a search field for unequippable items
       $(`#${IDS.inventory}`).length || insertSearchField({
+        store,
+        visibilities,
         siblingSelector: '.you_bottom_rhs .explanation',
         id: IDS.inventory,
         listSelector: '.you_bottom_rhs .you_icon',
@@ -101,6 +83,8 @@ function registerQualitiesObserver() {
     if ($('.you_bottom_lhs').length) {
       // Insert the search field
       $(`#${IDS.qualities}`).length || insertSearchField({
+        store,
+        visibilities,
         siblingSelector: '.you_bottom_lhs h2 + div',
         id: IDS.qualities,
         listSelector: '.you_bottom_lhs .qualitiesToggleDiv',
@@ -163,188 +147,5 @@ function registerQualitiesObserver() {
     function categoryIsHidden(el) {
       return $(el).next().css('display') === 'none';
     }
-  }
-}
-
-// Retrieve the user's preferences from storage.
-function retrieveOptions() {
-  // Use whichever storage we can access
-  const storage = chrome.storage.sync || chrome.storage.local;
-  // Retrieve visibilities and options from storage
-  storage.get(null, (options) => {
-    Object.keys(options).forEach((key) => {
-      const id = IDS[key];
-      if (id) {
-        const display = options[key] ? 'block' : 'none';
-        visibilities[id] = display;
-      } else {
-        preferences[key] = options[key];
-      }
-    });
-  });
-}
-
-// Listen for changes to the options in storage. We don't need to
-// have any actual communication between the popup and the content
-// script.
-function listenForStorageChanges() {
-  chrome.storage.onChanged.addListener((changes) => {
-    Object.keys(changes).forEach((change) => {
-      // Get the searchfield's ID
-      const id = IDS[change];
-
-      if (id) {
-        // Set the display value
-        const display = changes[change].newValue ? 'block' : 'none';
-        $(`#${id}`).css({ display });
-
-        // Update our store
-        visibilities[id] = display;
-
-        // If we're hiding the searchfield, then we need to clear it first
-        // so that the user isn't stuck with, e.g., an empty list that they
-        // can't change. We then need to trigger the keyup event manually.
-        if (!changes[change].newValue) {
-          $(`#${id}`).val('').trigger('keyup');
-        }
-      } else {
-        if (['search-descriptions'].includes(change)) {
-          // Cache preferences
-          preferences[change] = changes[change].newValue;
-          // Trigger a keyup on all searchfields to re-filter items
-          Object.keys(IDS).forEach((k) => {
-            const id = IDS[k];
-            const $el = $(`#${id}`);
-            $el.trigger('keyup');
-          });
-        }
-      }
-    });
-  });
-}
-
-function insertSearchField({
-  id,
-  siblingSelector,
-  listSelector,
-  emptyIconClass,
-  onFiltered,
-}) {
-  const inputHtml = `
-      <div class="flis-search__container">
-        <input
-          id="${id}"
-          class="flis-search__input"
-          style="display: ${visibilities[id]}"
-          type="text"
-          placeholder="Search"
-        />
-      </div>
-    `;
-  // Insert the HTML after the sibling
-  $(siblingSelector).after(inputHtml);
-
-  // Add a keyup event listener to filter children
-  // of matching lists
-  $(`#${id}`).keyup((evt) => {
-    const searchString = $(`#${id}`).val();
-    filterItems({ listSelector, searchString, emptyIconClass });
-    // If we have a callback to run after items are filtered, then
-    // run it now
-    if (typeof onFiltered === 'function') {
-      onFiltered({
-        searchString,
-      });
-    }
-  });
-}
-
-/*
- * Filter the <li> children of 'listSelector', showing them
- * if their names include the searched-for string (case-insensitive).
- * Elements with the class 'emptyIconClass' will be hidden while
- * filtering.
- */
-function filterItems({
-  listSelector,
-  searchString,
-  emptyIconClass,
-}) {
-  log(`filtering with selector '${listSelector}', searchString ${searchString}`);
-  // Iterate over each category (<ul> matching the selector)
-  $(listSelector).each(function() {
-    // Handle each item within the category
-    $(this).children().each(function() {
-      // If we're actively filtering, then we want to hide
-      // empty slots
-      if ($(this).hasClass(emptyIconClass)) {
-        if (searchString !== '') {
-          $(this).addClass('flis-hidden');
-        } else {
-          $(this).removeClass('flis-hidden');
-        }
-        return;
-      }
-
-      // Now search non-empty elements
-      if (preferences['search-descriptions']) {
-        // This is pretty straightforward stuff
-        if ($(this).text().toLowerCase().includes(searchString.toLowerCase())) {
-          $(this).removeClass('flis-hidden');
-        } else {
-          $(this).addClass('flis-hidden');
-        }
-      } else {
-        // The first <strong> element we find
-        // is the item's name and quantity info
-        // (usable items have a second <strong>)
-        const el = $(this).find('strong')[0];
-
-        // We may not be able to find it (e.g., Lilac's Inclination
-        // is bugged)
-        if (!el) {
-          return;
-        }
-
-        // We're trying to extract the item's name,
-        // ignoring quantity
-        const pat = /(?:[\d]+ x )?(.+)/;
-        // Convert to lower-case (so that we can do a
-        // case-insensitive comparison with the search string)
-        const match = pat.exec(el.innerText.toLowerCase());
-        // If we have a regex match and it contains the
-        // search string, then ensure it's displayed
-        if (match && match[1] && match[1].includes(searchString.toLowerCase())) {
-          $(this).removeClass('flis-hidden');
-        } else {
-          // Otherwise, hide the element
-          $(this).addClass('flis-hidden');
-        }
-      }
-    });
-
-    // If every item in the category is hidden, then
-    // hide the category too.
-    if ($(this).children().length === $(this).children('.flis-hidden').length) {
-      $(this).addClass('flis-hidden');
-      // In the inventory section, the category name is the list's
-      // previous sibling, so hide that too
-      if ($(this).prev().prop('tagName') === 'H3') {
-        $(this).prev().addClass('flis-hidden');
-        const categoryName = $(this).prev().text().trim();
-      }
-    } else {
-      $(this).removeClass('flis-hidden');
-      $(this).prev().removeClass('flis-hidden');
-    }
-  });
-}
-
-/*
- * If we're in debug mode, then log messages to the console
- */
-function log(message) {
-  if (DEBUG) {
-    console.log(`FLIS: ${message}`);
   }
 }
