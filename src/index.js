@@ -32,7 +32,6 @@ retrieveOptions({ store });
 // Listen for changes to the stored preferences
 listenForStorageChanges({ store });
 
-
 function registerItemObserver() {
   // We don't need to go any higher in the DOM than #mainContentViaAjax.
   const rootNode = document.getElementById('mainContentViaAjax');
@@ -46,26 +45,31 @@ function registerItemObserver() {
 
   function callback(summaries) {
     // Check whether our siblings are present
-    if ($('.inventory-header-and-button').length && $('.you_bottom_rhs .explanation').length) {
+    if (document.querySelector('.inventory-header-and-button')
+      && document.querySelector('.you_bottom_rhs .explanation')) {
       // Add a search field for equippable items
-      $(`#${IDS.outfit}`).length || insertSearchField({
-        store,
-        visibilities,
-        siblingSelector: '.inventory-header-and-button',
-        id: IDS.outfit,
-        listSelector: '.me-profile-slot-items, .me-profile-slot',
-        emptyIconClass: 'slot-item-empty',
-      });
+      if (!document.querySelector(`#${IDS.outfit}`)) {
+        insertSearchField({
+          store,
+          visibilities,
+          siblingSelector: '.inventory-header-and-button',
+          id: IDS.outfit,
+          listSelector: '.me-profile-slot-items, .me-profile-slot',
+          emptyIconClass: 'slot-item-empty',
+        });
+      }
 
       // Add a search field for unequippable items
-      $(`#${IDS.inventory}`).length || insertSearchField({
-        store,
-        visibilities,
-        siblingSelector: '.you_bottom_rhs .explanation',
-        id: IDS.inventory,
-        listSelector: '.you_bottom_rhs .you_icon',
-        emptyIconClass: 'empty-icon',
-      });
+      if (!document.querySelector(`#${IDS.inventory}`)) {
+        insertSearchField({
+          store,
+          visibilities,
+          siblingSelector: '.you_bottom_rhs .explanation',
+          id: IDS.inventory,
+          listSelector: '.you_bottom_rhs .you_icon',
+          emptyIconClass: 'empty-icon',
+        });
+      }
     }
   }
 }
@@ -80,16 +84,18 @@ function registerQualitiesObserver() {
   });
 
   function callback() {
-    if ($('.you_bottom_lhs').length) {
+    if (document.querySelector('.you_bottom_lhs')) {
       // Insert the search field
-      $(`#${IDS.qualities}`).length || insertSearchField({
-        store,
-        visibilities,
-        siblingSelector: '.you_bottom_lhs h2 + div',
-        id: IDS.qualities,
-        listSelector: '.you_bottom_lhs .qualitiesToggleDiv',
-        onFiltered,
-      });
+      if (!document.querySelector(`#${IDS.qualities}`)) {
+        insertSearchField({
+          store,
+          visibilities,
+          siblingSelector: '.you_bottom_lhs h2 + div',
+          id: IDS.qualities,
+          listSelector: '.you_bottom_lhs .qualitiesToggleDiv',
+          onFiltered,
+        });
+      }
 
       // Check whether we have populated fields, and load
       // them if we don't. Firefox doesn't seem to want to let us
