@@ -27,7 +27,7 @@ export default function insertSearchField({
 
   // Add a keyup event listener to filter children
   // of matching lists
-  $(`#${id}`).keyup((evt) => {
+  $(`#${id}`).keyup(evt => {
     const searchString = $(`#${id}`).val();
     filterItems({ listSelector, searchString, emptyIconClass, store });
     // If we have a callback to run after items are filtered, then
@@ -39,4 +39,3 @@ export default function insertSearchField({
     }
   });
 }
-

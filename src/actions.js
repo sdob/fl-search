@@ -8,14 +8,14 @@ export const VISIBILITIES_CHANGED = 'visiblities/VISIBILITIES_CHANGED';
 export function retrieveOptions({ store }) {
   // Use whichever storage we can access
   const storage = chrome.storage.sync || chrome.storage.local;
-  
+
   // We'll build state from these objects
   const visibilities = {};
   const preferences = {};
 
   // Retrieve visibilities and options from storage
-  storage.get(null, (options) => {
-    Object.keys(options).forEach((key) => {
+  storage.get(null, options => {
+    Object.keys(options).forEach(key => {
       const id = IDS[key];
 
       // Decide what kind of value we're dealing with: search field
@@ -38,10 +38,10 @@ export function retrieveOptions({ store }) {
 // have any actual communication between the popup and the content
 // script.
 export function listenForStorageChanges({ store }) {
-  chrome.storage.onChanged.addListener((changes) => {
+  chrome.storage.onChanged.addListener(changes => {
     const { preferences, visibilities } = store.getState();
 
-    Object.keys(changes).forEach((change) => {
+    Object.keys(changes).forEach(change => {
       // Get the searchfield's ID
       const id = IDS[change];
 
@@ -57,7 +57,9 @@ export function listenForStorageChanges({ store }) {
         // so that the user isn't stuck with, e.g., an empty list that they
         // can't change. We then need to trigger the keyup event manually.
         if (!changes[change].newValue) {
-          $(`#${id}`).val('').trigger('keyup');
+          $(`#${id}`)
+            .val('')
+            .trigger('keyup');
         }
 
         // Dispatch an action
@@ -70,7 +72,7 @@ export function listenForStorageChanges({ store }) {
           // Cache preferences
           const { newValue } = changes[change];
           // Trigger a keyup on all searchfields to re-filter items
-          Object.keys(IDS).forEach((k) => {
+          Object.keys(IDS).forEach(k => {
             const id = IDS[k];
             const $el = $(`#${id}`);
             $el.trigger('keyup');

@@ -11,9 +11,10 @@ import { listenForStorageChanges, retrieveOptions } from './actions';
 import insertSearchField from './insertSearchField';
 
 console.info('Detecting legacy/new state');
-const legacy = [...document.querySelectorAll('script')]
-  .filter(x => x.getAttribute('src') && x.getAttribute('src').indexOf('ui26.js') >= 0)
-  .length > 0;
+const legacy =
+  [...document.querySelectorAll('script')].filter(
+    x => x.getAttribute('src') && x.getAttribute('src').indexOf('ui26.js') >= 0,
+  ).length > 0;
 if (legacy) {
   console.info('Legacy UI detected');
 } else {
@@ -55,8 +56,10 @@ function registerItemObserver() {
 
   function callback(summaries) {
     // Check whether our siblings are present
-    if (document.querySelector('.inventory-header-and-button')
-      && document.querySelector('.you_bottom_rhs .explanation')) {
+    if (
+      document.querySelector('.inventory-header-and-button') &&
+      document.querySelector('.you_bottom_rhs .explanation')
+    ) {
       // Add a search field for equippable items
       if (!document.querySelector(`#${IDS.outfit}`)) {
         insertSearchField({
@@ -127,11 +130,17 @@ function registerQualitiesObserver() {
           // still empty), so we'll do the toggling ourselves instead.
 
           // Show the 'expand' button
-          $(this).children('.expand').toggle();
+          $(this)
+            .children('.expand')
+            .toggle();
           // Hide the 'contract' button
-          $(this).children('.contract').toggle();
+          $(this)
+            .children('.contract')
+            .toggle();
           // Hide the contents div
-          $(this).next().toggle();
+          $(this)
+            .next()
+            .toggle();
         }
       });
     }
@@ -161,7 +170,11 @@ function registerQualitiesObserver() {
     }
 
     function categoryIsHidden(el) {
-      return $(el).next().css('display') === 'none';
+      return (
+        $(el)
+          .next()
+          .css('display') === 'none'
+      );
     }
   }
 }

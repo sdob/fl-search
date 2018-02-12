@@ -8,7 +8,9 @@ const advancedOptions = ['search-descriptions'];
 document.addEventListener('DOMContentLoaded', loadOptions);
 
 // Set event listeners on each option checkbox
-document.querySelectorAll('.flis-options__input').forEach(setCheckboxChangeListener);
+document
+  .querySelectorAll('.flis-options__input')
+  .forEach(setCheckboxChangeListener);
 
 const storage = chrome.storage.sync || chrome.storage.local;
 
@@ -16,15 +18,15 @@ const storage = chrome.storage.sync || chrome.storage.local;
  * Load options from storage, or set defaults (all true)
  */
 function loadOptions() {
-  storage.get(null, (options) => {
+  storage.get(null, options => {
     // Set searchfield checkbox states
-    searchfields.forEach((searchfield) => {
+    searchfields.forEach(searchfield => {
       // Default to true if we don't already have the key
       if (!Object.keys(options).includes(searchfield)) {
         options[searchfield] = true;
       }
       // Find the checkbox that controls this field's visibility
-      const el = document.querySelector(`[data-searchfield="${searchfield}"]`)
+      const el = document.querySelector(`[data-searchfield="${searchfield}"]`);
       // Set checkbox value (if we found it)
       if (el) {
         el.checked = options[searchfield];
@@ -35,7 +37,7 @@ function loadOptions() {
     storage.set(options);
 
     // Set advanced options (default to false)
-    advancedOptions.forEach((option) => {
+    advancedOptions.forEach(option => {
       if (!Object.keys(options).includes(option)) {
         options[option] = false;
       }
@@ -55,7 +57,7 @@ function loadOptions() {
  */
 function setCheckboxChangeListener(el) {
   // When the checkbox value changes, update the option's stored value
-  el.onchange = (evt) => {
+  el.onchange = evt => {
     // If this is a searchfield checkbox, update storage
     const searchfield = el.getAttribute('data-searchfield');
     if (searchfield) {

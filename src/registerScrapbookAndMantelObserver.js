@@ -15,12 +15,13 @@ export default function registerScrapbookAndMantelObserver() {
   });
 }
 export function callback(summaries) {
-    const id = IDS.scrapbook;
-    if ($('div.ui-dialog .qualities li').length) {
-      $(`#${id}`).length || insertSearchField({
+  const id = IDS.scrapbook;
+  if ($('div.ui-dialog .qualities li').length) {
+    $(`#${id}`).length ||
+      insertSearchField({
         id,
         siblingSelector: '#quality-chooser h3',
         listSelector: 'div.ui-dialog .qualities',
       });
-    }
   }
+}

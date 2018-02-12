@@ -5,7 +5,7 @@ const INITIAL_STATE = {
   preferences: {
     'search-descriptions': false,
   },
-  visibilities: { },
+  visibilities: {},
 };
 
 export default function reducer(state = INITIAL_STATE, action) {
