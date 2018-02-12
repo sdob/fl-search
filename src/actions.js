@@ -4,7 +4,8 @@ import { IDS } from './ids';
 export const PREFERENCES_CHANGED = 'storage/PREFERENCES_CHANGED';
 export const VISIBILITIES_CHANGED = 'visiblities/VISIBILITIES_CHANGED';
 
-// Retrieve the user's preferences from storage.
+// Retrieve the user's preferences from storage. We do this on page
+// load to create the store.
 export function retrieveOptions({ store }) {
   // Use whichever storage we can access
   const storage = chrome.storage.sync || chrome.storage.local;
@@ -13,7 +14,8 @@ export function retrieveOptions({ store }) {
   const visibilities = {};
   const preferences = {};
 
-  // Retrieve visibilities and options from storage
+  // Retrieve options from storage and build visibility/preference
+  // objects
   storage.get(null, options => {
     Object.keys(options).forEach(key => {
       const id = IDS[key];
@@ -34,9 +36,7 @@ export function retrieveOptions({ store }) {
   });
 }
 
-// Listen for changes to the options in storage. We don't need to
-// have any actual communication between the popup and the content
-// script.
+// Listen for changes to the options in storage.
 export function listenForStorageChanges({ store }) {
   chrome.storage.onChanged.addListener(changes => {
     Object.keys(changes).forEach(change => {
@@ -53,12 +53,11 @@ export function listenForStorageChanges({ store }) {
   });
 }
 
-function handlePreferenceChange({ change, changes, store }) {
+export function handlePreferenceChange({ change, changes, store }) {
   const { newValue } = changes[change];
   const { preferences } = store;
 
   if (['search-descriptions'].includes(change)) {
-    // Cache preferences
     // Trigger a keyup on all searchfields to re-filter items
     Object.keys(IDS).forEach(k => {
       const id = IDS[k];
@@ -77,8 +76,9 @@ function handlePreferenceChange({ change, changes, store }) {
   });
 }
 
-function handleVisibilityChange({ change, changes, id, store }) {
+export function handleVisibilityChange({ change, changes, id, store }) {
   const { visibilities } = store;
+
   // Set the display value
   const display = changes[change].newValue ? 'block' : 'none';
   $(`#${id}`).css({ display });
