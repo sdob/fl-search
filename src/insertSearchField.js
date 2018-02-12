@@ -9,8 +9,8 @@ export default function insertSearchField({
   emptyIconClass,
   onFiltered,
   store,
-  visibilities,
 }) {
+  const { visibilities } = store.getState();
   const inputHtml = `
       <div class="flis-search__container">
         <input
