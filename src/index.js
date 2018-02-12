@@ -4,6 +4,7 @@ import { createStore } from 'redux';
 
 import reducer from './reducer';
 import style from './style.scss'; // eslint-disable-line no-unused-vars
+import registerItemObserver from './registerItemObserver';
 import registerScrapbookAndMantelObserver from './registerScrapbookAndMantelObserver';
 import { IDS } from './ids';
 import { listenForStorageChanges, retrieveOptions } from './actions';
@@ -29,7 +30,7 @@ const visibilities = {};
 
 // Register observers
 registerScrapbookAndMantelObserver();
-registerItemObserver();
+registerItemObserver({ store });
 registerQualitiesObserver();
 
 // Grab visibilities and options from storage
@@ -37,50 +38,6 @@ retrieveOptions({ store });
 
 // Listen for changes to the stored preferences
 listenForStorageChanges({ store });
-
-function registerItemObserver() {
-  // We don't need to go any higher in the DOM than #mainContentViaAjax.
-  const rootNode = document.getElementById('mainContentViaAjax');
-  const queries = [{ element: '*' }];
-
-  return new MutationSummary({
-    rootNode,
-    callback,
-    queries,
-  });
-
-  function callback() {
-    // Check whether our siblings are present
-    if (
-      document.querySelector('.inventory-header-and-button') &&
-      document.querySelector('.you_bottom_rhs .explanation')
-    ) {
-      // Add a search field for equippable items
-      if (!document.querySelector(`#${IDS.outfit}`)) {
-        insertSearchField({
-          store,
-          visibilities,
-          siblingSelector: '.inventory-header-and-button',
-          id: IDS.outfit,
-          listSelector: '.me-profile-slot-items, .me-profile-slot',
-          emptyIconClass: 'slot-item-empty',
-        });
-      }
-
-      // Add a search field for unequippable items
-      if (!document.querySelector(`#${IDS.inventory}`)) {
-        insertSearchField({
-          store,
-          visibilities,
-          siblingSelector: '.you_bottom_rhs .explanation',
-          id: IDS.inventory,
-          listSelector: '.you_bottom_rhs .you_icon',
-          emptyIconClass: 'empty-icon',
-        });
-      }
-    }
-  }
-}
 
 function registerQualitiesObserver() {
   const rootNode = document.getElementById('mainContentViaAjax');
