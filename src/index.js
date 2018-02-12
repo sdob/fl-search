@@ -26,8 +26,8 @@ registerScrapbookAndMantelObserver({ store });
 registerItemObserver({ store });
 registerQualitiesObserver({ store });
 
-// Grab visibilities and options from storage
+// Grab options from storage
 retrieveOptions({ store });
 
-// Listen for changes to the stored preferences
+// Listen for changes to the stored options
 listenForStorageChanges({ store });
