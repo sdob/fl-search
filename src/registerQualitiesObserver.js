@@ -15,12 +15,10 @@ export default function registerQualitiesObserver({ store }) {
 
   function callback() {
     if (document.querySelector('.you_bottom_lhs')) {
-      const { visibilities } = store.getState();
       // Insert the search field
       if (!document.querySelector(`#${IDS.qualities}`)) {
         insertSearchField({
           store,
-          visibilities,
           siblingSelector: '.you_bottom_lhs h2 + div',
           id: IDS.qualities,
           listSelector: '.you_bottom_lhs .qualitiesToggleDiv',
