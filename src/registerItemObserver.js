@@ -19,13 +19,10 @@ export default function registerItemObserver({ store }) {
       document.querySelector('.inventory-header-and-button') &&
       document.querySelector('.you_bottom_rhs .explanation')
     ) {
-      const { visibilities } = store.getState();
-
       // Add a search field for equippable items
       if (!document.querySelector(`#${IDS.outfit}`)) {
         insertSearchField({
           store,
-          visibilities,
           siblingSelector: '.inventory-header-and-button',
           id: IDS.outfit,
           listSelector: '.me-profile-slot-items, .me-profile-slot',
@@ -37,7 +34,6 @@ export default function registerItemObserver({ store }) {
       if (!document.querySelector(`#${IDS.inventory}`)) {
         insertSearchField({
           store,
-          visibilities,
           siblingSelector: '.you_bottom_rhs .explanation',
           id: IDS.inventory,
           listSelector: '.you_bottom_rhs .you_icon',
