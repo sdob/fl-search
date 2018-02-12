@@ -14,7 +14,8 @@ export default function registerScrapbookAndMantelObserver() {
     queries,
   });
 }
-export function callback(summaries) {
+
+export function callback() {
   const id = IDS.scrapbook;
   if ($('div.ui-dialog .qualities li').length) {
     $(`#${id}`).length ||

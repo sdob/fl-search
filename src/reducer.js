@@ -1,4 +1,3 @@
-import { combineReducers } from 'redux';
 import { PREFERENCES_CHANGED, VISIBILITIES_CHANGED } from './actions';
 
 const INITIAL_STATE = {

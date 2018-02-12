@@ -3,28 +3,23 @@ import $ from 'jquery';
 import { createStore } from 'redux';
 
 import reducer from './reducer';
-import style from './style.scss';
+import style from './style.scss'; // eslint-disable-line no-unused-vars
 import registerScrapbookAndMantelObserver from './registerScrapbookAndMantelObserver';
 import { IDS } from './ids';
-import filterItems from './filterItems';
 import { listenForStorageChanges, retrieveOptions } from './actions';
 import insertSearchField from './insertSearchField';
+import log from './log';
 
-console.info('Detecting legacy/new state');
+log('Detecting legacy/new state');
 const legacy =
   [...document.querySelectorAll('script')].filter(
     x => x.getAttribute('src') && x.getAttribute('src').indexOf('ui26.js') >= 0,
   ).length > 0;
 if (legacy) {
-  console.info('Legacy UI detected');
+  log('Legacy UI detected');
 } else {
-  console.info('Looks new to me');
+  log('Looks new to me');
 }
-
-const preferences = {
-  // Search descriptions, or just names?
-  'search-descriptions': false,
-};
 
 const store = createStore(reducer);
 
@@ -54,7 +49,7 @@ function registerItemObserver() {
     queries,
   });
 
-  function callback(summaries) {
+  function callback() {
     // Check whether our siblings are present
     if (
       document.querySelector('.inventory-header-and-button') &&

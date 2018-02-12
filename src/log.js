@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const DEBUG = true;
 
 /* * If we're in debug mode, then log messages to the console */

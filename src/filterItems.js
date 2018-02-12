@@ -97,10 +97,6 @@ export default function filterItems({
         $(this)
           .prev()
           .addClass('flis-hidden');
-        const categoryName = $(this)
-          .prev()
-          .text()
-          .trim();
       }
     } else {
       $(this).removeClass('flis-hidden');
