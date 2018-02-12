@@ -22,7 +22,7 @@ if (legacy) {
 const store = createStore(reducer);
 
 // Register observers
-registerScrapbookAndMantelObserver();
+registerScrapbookAndMantelObserver({ store });
 registerItemObserver({ store });
 registerQualitiesObserver({ store });
 
