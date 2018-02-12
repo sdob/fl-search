@@ -1,5 +1,6 @@
 const path = require('path');
 
+const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
@@ -61,6 +62,9 @@ module.exports = {
     copy,
     zip,
     new ExtractTextWebpackPlugin('style.css'),
+    new webpack.DefinePlugin({
+      DEBUG: process.env.NODE_ENV !== 'production',
+    }),
   ],
   resolve: {
     extensions: ['.js', '.jsx'],
