@@ -10,6 +10,16 @@ import filterItems from './filterItems';
 import { listenForStorageChanges, retrieveOptions } from './actions';
 import insertSearchField from './insertSearchField';
 
+console.info('Detecting legacy/new state');
+const legacy = [...document.querySelectorAll('script')]
+  .filter(x => x.getAttribute('src') && x.getAttribute('src').indexOf('ui26.js') >= 0)
+  .length > 0;
+if (legacy) {
+  console.info('Legacy UI detected');
+} else {
+  console.info('Looks new to me');
+}
+
 const preferences = {
   // Search descriptions, or just names?
   'search-descriptions': false,
