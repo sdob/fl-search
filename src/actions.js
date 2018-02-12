@@ -39,52 +39,62 @@ export function retrieveOptions({ store }) {
 // script.
 export function listenForStorageChanges({ store }) {
   chrome.storage.onChanged.addListener(changes => {
-    const { preferences, visibilities } = store.getState();
-
     Object.keys(changes).forEach(change => {
       // Get the searchfield's ID
       const id = IDS[change];
 
+      // Is this a change to a visibility preference?
       if (id) {
-        // Set the display value
-        const display = changes[change].newValue ? 'block' : 'none';
-        $(`#${id}`).css({ display });
-
-        // Update our store
-        visibilities[id] = display;
-
-        // If we're hiding the searchfield, then we need to clear it first
-        // so that the user isn't stuck with, e.g., an empty list that they
-        // can't change. We then need to trigger the keyup event manually.
-        if (!changes[change].newValue) {
-          $(`#${id}`)
-            .val('')
-            .trigger('keyup');
-        }
-
-        // Dispatch an action
-        store.dispatch({
-          type: VISIBILITIES_CHANGED,
-          payload: { ...visibilities, id: display },
-        });
+        return handleVisibilityChange({ change, changes, id, store });
       } else {
-        if (['search-descriptions'].includes(change)) {
-          // Cache preferences
-          const { newValue } = changes[change];
-          // Trigger a keyup on all searchfields to re-filter items
-          Object.keys(IDS).forEach(k => {
-            const id = IDS[k];
-            const $el = $(`#${id}`);
-            $el.trigger('keyup');
-          });
-
-          // Dispatch an action
-          store.dispatch({
-            type: PREFERENCES_CHANGED,
-            payload: { ...preferences, [change]: newValue },
-          });
-        }
+        return handlePreferenceChange({ change, changes, store });
       }
     });
+  });
+}
+
+function handlePreferenceChange({ change, changes, store }) {
+  const { newValue } = changes[change];
+  const { preferences } = store;
+
+  if (['search-descriptions'].includes(change)) {
+    // Cache preferences
+    // Trigger a keyup on all searchfields to re-filter items
+    Object.keys(IDS).forEach(k => {
+      const id = IDS[k];
+      const $el = $(`#${id}`);
+      $el.trigger('keyup');
+    });
+  } else if (['alphabetize-qualities'].includes(change)) {
+    // TODO: Decide how to handle changes to the preference. Should
+    // we simply reload the qualities? That might be easiest.
+  }
+
+  // Dispatch an action
+  return store.dispatch({
+    type: PREFERENCES_CHANGED,
+    payload: { ...preferences, [change]: newValue },
+  });
+}
+
+function handleVisibilityChange({ change, changes, id, store }) {
+  const { visibilities } = store;
+  // Set the display value
+  const display = changes[change].newValue ? 'block' : 'none';
+  $(`#${id}`).css({ display });
+
+  // If we're hiding the searchfield, then we need to clear it first
+  // so that the user isn't stuck with, e.g., an empty list that they
+  // can't change. We then need to trigger the keyup event manually.
+  if (!changes[change].newValue) {
+    $(`#${id}`)
+      .val('')
+      .trigger('keyup');
+  }
+
+  // Dispatch an action
+  return store.dispatch({
+    type: VISIBILITIES_CHANGED,
+    payload: { ...visibilities, id: display },
   });
 }
